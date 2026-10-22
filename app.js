@@ -23,16 +23,20 @@ return group(shape+(thinking?txt(212,176,'1등 할 수',17,K)+txt(212,199,'있�
 function packet(x,y){return [0,1,2].map(j=>card(x+j*3,y-j*3,'',K,25,37)).join('')}
 function movingCard(a,b,q,n='',color=K){q=ease(q);return card(lerp(a[0],b[0],q),lerp(a[1],b[1],q),n,color,25,37)}
 function render(t){let s='',type=scenes[page].type;
-$('scene').classList.toggle('flow-scene',type==='flow'||type==='points');$('scene').setAttribute('role',type==='flow'||type==='points'?'group':'img');
+$('scene').classList.toggle('flow-scene',['flow','points','combinations'].includes(type));$('scene').setAttribute('role',['flow','points','combinations'].includes(type)?'group':'img');
 if(scenes[page].textOnly){$('scene').innerHTML='';return}
 if(type==='flow'&&window.drawFlow){window.drawFlow();return}
-if(type==='points'){$('scene').innerHTML='<table class="points-table"><caption>카드 한 장의 점수</caption><thead><tr><th scope="col">카드</th><th scope="col">점수</th></tr></thead><tbody>'+[['5','+5'],['10','+10'],['K','+10'],['용','+25'],['봉황','−25'],['새 (1)','0'],['개','0'],['나머지 일반 카드','0']].map(([name,points])=>`<tr><th scope="row">${name}</th><td>${points}</td></tr>`).join('')+'</tbody></table>';return;}
+if(['points','combinations'].includes(type)&&window.drawRulePage){window.drawRulePage(type);return}
 if(scenes[page].rule){const rule=scenes[page].rule;s=txt(212,45,'티츄 특수 규칙',16,R);
 if(rule==='combinations'){s+=cards([7],80,130,R)+cards([7,7],230,130,B)+txt(80,185,'한 장',16,R)+txt(230,185,'페어',16,B)+cards([3,4,5,6,7],212,260,R,30)+txt(212,318,'스트레이트 · 자세한 조합은 아래에서',13,R)}
 else if(rule==='bomb'){s+=cards([7,7,7,7],212,135,R,34)+txt(212,193,'같은 숫자 4장',16,R)+cards([3,4,5,6,7],212,258,B,30)+txt(212,315,'같은 무늬의 연속 숫자 5장 이상',14,B)}
-else if(rule==='declarations'){s+=txt(118,135,'스몰 티츄',22,R)+txt(306,135,'라지 티츄',22,B)+txt(118,205,'±100',36,R)+txt(306,205,'±200',36,B)+txt(212,294,'선언한 사람이 1위!',20,K)}
-else if(rule==='double'){s+=txt(130,135,'1위',35,R)+txt(290,135,'2위',35,R)+line(155,153,265,153,R,true)+txt(212,220,'같은 팀 +200점',29,R)+txt(212,288,'라운드 즉시 종료',19,K)}
-else{const names={mahjong:['새','1 · 소원'],dog:['개','팀원에게 선 넘기기'],phoenix:['봉황','−25점 · 대체 카드'],dragon:['용','+25점 · 가장 강한 한 장']};const [name,sub]=names[rule];s+=`<rect x="152" y="90" width="120" height="158" rx="9" fill="white" stroke="${R}" stroke-width="2"/>`+txt(212,169,name,30,R)+txt(212,295,sub,19,K)}
+else if(rule==='declarations'){const large=window.declarationMode!=='small';s+=txt(212,112,large?'라지 티츄':'스몰 티츄',27,R,700)+txt(212,180,large?'±200점':'±100점',38,R,700)+txt(212,249,large?'9번째 카드를 받기 전에':'자신의 첫 카드를 내기 전에',17,K)+txt(212,294,'선언한 본인이 1위!',20,K)}
+else if(rule==='double'){
+ s=table();const order=[0,2],done=Math.min(2,Math.max(0,Math.floor((t-.4)/1.2)+1));
+ for(let i=0;i<4;i++){const rank=order.indexOf(i);if(rank<0||rank>=done)s+=hand(i);else s+=bubble(i,`${rank+1}위`,ease((t-(.4+rank*1.2))/.3))}
+ if(t>1.9)s+=line(212,104,212,272,R,true)+txt(212,175,'같은 팀 1·2위',22,R,700)+txt(212,205,'라운드 종료',18,K);
+}
+else{const names={mahjong:['참새','1 · 소원'],dog:['개','팀원에게 선 넘기기'],phoenix:['봉황','−25점 · 대체 카드'],dragon:['용','+25점 · 가장 강한 한 장']};const [name,sub]=names[rule];s+=`<image href="assets/cards/${rule}.png" x="146" y="76" width="132" height="208" preserveAspectRatio="xMidYMid meet"><title>${name} 카드</title></image>`+txt(212,315,sub,19,K)}
 $('scene').innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 424 374" aria-hidden="true">${s}</svg>`;return;}
 
 if(type==='higher'&&window.higherMode==='pass'){
@@ -40,12 +44,12 @@ s=table()+cards([8,8],212,195,B);P.forEach((_,i)=>s+=hand(i));if(t>.3)s+=bubble(
 }else if(['intro','higher'].includes(type)){
 const examples=[[[5],[8]],[[5,5],[8,8]],[[4,4,4],[9,9,9]],[[2,3,4,5,6],[5,6,7,8,9]]];
 const pair=examples[type==='intro'?cycle%4:1+cycle%2];
-s=type==='intro'?txt(212,28,'카드 조합 알아보기',18,R):table();
-s+=txt(212,type==='intro'?63:96,'앞사람이 낸 카드',15,B);
+s=type==='intro'?'':table();
+if(type!=='intro')s+=txt(212,96,'앞사람이 낸 카드',15,B);
 const y=type==='intro'?190:190;
 s+=cards(pair[0],203,y,K,type==='intro'?36:29);
 let q=ease((t-.8)/1.1);s+=group(cards(pair[1],220,y+13,R,type==='intro'?36:29),0,lerp(160,0,q),q);
-s+=txt(212,type==='intro'?322:346,t<1?'같은 종류의 카드 조합':'그 위에 더 높은 카드를 내요',15,R);
+if(type!=='intro')s+=txt(212,346,t<1?'같은 종류의 카드 조합':'그 위에 더 높은 카드를 내요',15,R);
 }else if(type==='teams'){
 s=table(t);let a=ease((t-.7)/.6),b=ease((t-1.5)/.6);s+=group(line(212,104,212,280,R,true)+txt(212,151,'빨간 팀',20,R),0,0,a);s+=group(line(86,188,338,188,B,true)+txt(212,235,'파란 팀',20,B),0,0,b);
 }else if(type==='deal8'||type==='deal6'){
@@ -60,8 +64,8 @@ else s+=declarationBubble(false,type==='large'?'라지 티츄!':'스몰 티츄!'
 s=table();P.forEach((p,i)=>s+=hand(i));const sender=Math.min(3,Math.floor(t/1.1)),q=clamp((t-sender*1.1)/.75);
 for(let target=0;target<4;target++)if(target!==sender){s+=line(...H[sender],...H[target],sender%2?B:R,true);s+=movingCard(H[sender],H[target],q,'',sender%2?B:R)}s+=txt(212,346,t>4.4?'모두 3장을 보내고 3장을 받았어요':'각자 다른 세 사람에게 한 장씩',14,R);
 }else if(type==='first'){
-s=table()+hand(0,3)+card(212,104,1,R,29,44);
-s+=txt(324,59,'← 1 카드를 가진 사람',12,R);
+s=table()+hand(0,3)+`<image href="assets/cards/mahjong.png" x="192" y="77" width="40" height="63" preserveAspectRatio="xMidYMid meet"><title>참새 카드</title></image>`;
+s+=txt(324,59,'← 참새 카드를 가진 사람',11,R);
 const examples=[[5,5],[8,8,8],[3,4,5,6,7]],index=Math.min(2,Math.floor(t/(5/3))),local=t-index*(5/3),q=ease((local-.15)/.5),opacity=ease(local/.15)*ease(((5/3)-local)/.2);
 s+=group(cards(examples[index],212,lerp(112,213,q),R,29),0,0,opacity);
 s+=txt(212,285,['5 · 5','8 · 8 · 8','3 · 4 · 5 · 6 · 7'][index],15,R)+txt(212,342,`첫 카드 예시 ${index+1} / 3`,12,G);
@@ -83,7 +87,8 @@ const labels=[['카드 준비','8장 → 선언 선택 → 6장 → 교환'],['�
 s=table();[5,8,10].forEach((n,i)=>s+=group(card(166+i*47,188,n,K,36,54),0,-Math.sin(clamp((t-i*.3)/1.5)*Math.PI)*16));s+=bubble(0,t<2.5?'티츄!':'준비됐나요?',ease(t/.4));}
 $('scene').innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 424 374" aria-hidden="true">${s}</svg>`;
 }
-function show(i){page=Math.max(0,Math.min(scenes.length-1,i));elapsed=0;cycle=0;const p=scenes[page];$('title').textContent=p.title;$('body').textContent=p.body;$('note').textContent=p.note||'';$('note').hidden=!p.note;$('count').textContent=page?`${page} / ${scenes.length-1}`:'게임 소개';$('step').textContent=p.textOnly?'게임 소개':p.rule?'특수 규칙':p.type==='flow'?'한눈에 보는 진행 순서':page?`${page}단계`:'어떤 게임인가요?';$('bars').innerHTML=page&&!p.rule&&!p.textOnly&&p.type!=='flow'?Array.from({length:scenes.length-1},(_,j)=>`<span class="${j<page?'on':''}"></span>`).join(''):'';$('prev').disabled=page===0;$('next').textContent=page===14?'게임 준비하기':'다음 →';$('scene').setAttribute('aria-label',p.title+' '+p.body);render(reduced?4.5:0);$('frame').value=reduced?4500:0;window.paintCopy?.(page);$('rule-source').hidden=!p.rule;for(const id of ['open-card-rules','open-special-rules'])$(id).hidden=!['first','higher'].includes(p.type);$('open-score-rules').hidden=p.type!=='score';$('higher-tabs').hidden=p.type!=='higher';}
+function show(i){page=Math.max(0,Math.min(scenes.length-1,i));elapsed=0;cycle=0;const p=scenes[page];const reference=['points','combinations'].includes(p.type);document.querySelector('.page').classList.toggle('is-reference-page',reference);const copy=document.querySelector('.copy');if(reference)copy.after($('scene'));else copy.before($('scene'));if(!reference)delete $('scene').dataset.rulePage;$('declaration-tabs').hidden=p.type!=='declarations';$('title').textContent=p.title;$('body').textContent=p.body;$('note').textContent=p.note||'';$('note').hidden=!p.note;$('count').textContent=page?`${page} / ${scenes.length-1}`:'게임 소개';$('step').textContent='';$('bars').innerHTML=page>=1&&page<=12?Array.from({length:12},(_,j)=>`<span class="${j<page?'on':''}"></span>`).join(''):'';$('prev').disabled=page===0;$('next').textContent=page===14?'게임 준비하기':'다음 →';$('scene').setAttribute('aria-label',p.title+' '+p.body);render(reduced?4.5:0);$('frame').value=reduced?4500:0;window.paintCopy?.(page);$('rule-source').hidden=!p.rule;for(const id of ['open-card-rules','open-special-rules'])$(id).hidden=!['first','higher'].includes(p.type)||(p.type==='higher'&&window.higherMode==='pass');$('open-score-rules').hidden=p.type!=='score';$('higher-tabs').hidden=p.type!=='higher';}
+$('declaration-tabs').onclick=e=>{const b=e.target.closest('[data-declaration]');if(!b)return;window.declarationMode=b.dataset.declaration;for(const x of $('declaration-tabs').querySelectorAll('button'))x.setAttribute('aria-pressed',String(x===b));window.paintCopy(page);render(elapsed/1000)};
 $('prev').onclick=()=>show(page-1);$('next').onclick=()=>show(page===14?2:page+1);
 $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'일시정지':'재생'};
 $('restart').onclick=()=>{elapsed=0;cycle=0;playing=true;reduced=false;$('reduce').checked=false;$('play').textContent='일시정지';render(0)};
@@ -93,5 +98,5 @@ $('reduce').onchange=e=>{reduced=e.target.checked;if(reduced){elapsed=4500;rende
 media.addEventListener('change',e=>{reduced=e.matches;$('reduce').checked=reduced;if(reduced)render(4.5)});
 document.addEventListener('keydown',e=>{if(document.getElementById('rules-sheet')?.open||document.getElementById('copy-editor')?.open||document.querySelector('.notebook')?.classList.contains('is-cover')||document.getElementById('index-editor')?.open||['INPUT','SELECT'].includes(e.target.tagName))return;if(e.key==='ArrowRight')show(page+1);if(e.key==='ArrowLeft')show(page-1)});
 function tick(now){const delta=last?Math.min(now-last,100):0;last=now;if(playing&&!reduced&&!document.hidden){elapsed+=delta*speed*(page===0&&!window.activeCut?1.8:1);const cut=window.activeCut, end=cut?cut.end:(scenes[page].type==='higher'?2400:5000), start=cut?cut.start:0;if(elapsed>=end){elapsed=start+(elapsed-end)%(end-start);if(!cut)cycle++}render(elapsed/1000);$('frame').value=elapsed}requestAnimationFrame(tick)}
-$('higher-tabs').onclick=e=>{const button=e.target.closest('[data-higher]');if(!button)return;window.higherMode=button.dataset.higher;for(const b of $('higher-tabs').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));elapsed=0;window.paintCopy(page);render(0);};
+$('higher-tabs').onclick=e=>{const button=e.target.closest('[data-higher]');if(!button)return;window.higherMode=button.dataset.higher;for(const b of $('higher-tabs').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));elapsed=0;window.paintCopy(page);for(const id of ['open-card-rules','open-special-rules'])$(id).hidden=window.higherMode==='pass';render(0);};
 show(0);requestAnimationFrame(tick);

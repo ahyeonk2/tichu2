@@ -6,7 +6,7 @@
 
 ## GitHub에 올리는 방법
 
-1. ZIP 압축을 풉니다. ZIP 파일 자체가 아니라 안의 파일 전부와 fonts 폴더를 올립니다.
+1. ZIP 압축을 풉니다. ZIP 파일 자체가 아니라 안의 파일 전부와 fonts·assets 폴더를 올립니다.
 2. GitHub 저장소 최상위에 index.html이 바로 보이게 올립니다.
 3. Settings → Pages → Source: Deploy from a branch.
 4. Branch: main, Folder: /(root) → Save.
@@ -25,6 +25,7 @@
 - content-editor.js: 본문 및 하이라이트 편집
 - rule-sheets.js: 바텀시트 및 편집
 - site-backup.js: 전체 편집 백업
+- assets/cards/: 특수카드 이미지 (필수)
 - fonts/: 폰트 2개
 - .nojekyll: 정적 파일 배포 설정
 - README.md: 안내문

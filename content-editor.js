@@ -7,7 +7,7 @@ function clean(html){const template=document.createElement('template');template.
 function plain(html){const d=document.createElement('div');d.innerHTML=html.replace(/<br>/g,'\n');return d.textContent}
 function valid(data){return data&&data.version===1&&data.pages&&typeof data.pages==='object'&&!Array.isArray(data.pages)&&Object.entries(data.pages).every(([key,v])=>list.some(p=>p.type===key)&&v&&fields.every(f=>(!['title','body','note'].includes(f)&&v[f]===undefined)||(typeof v[f]==='string'&&v[f].length<=30000)))}
 function apply(){list.forEach((p,i)=>{const v=saved[p.type];for(const f of fields)p[f]=v&&v[f]!==undefined?plain(v[f]):original[i][f]||''})}
-try{const data=JSON.parse(localStorage.getItem(KEY));if(valid(data))saved=Object.fromEntries(Object.entries(data.pages).map(([k,v])=>[k,Object.fromEntries(fields.filter(f=>v[f]!==undefined).map(f=>[f,clean(v[f])]))]));}catch{}
+try{const data=window.readTichuData(KEY);if(valid(data))saved=Object.fromEntries(Object.entries(data.pages).map(([k,v])=>[k,Object.fromEntries(fields.filter(f=>v[f]!==undefined).map(f=>[f,clean(v[f])]))]));}catch{}
 if(saved.collect&&!saved.collect.note.includes('가져온 카드는 뒤집어서'))saved.collect.note+=(saved.collect.note?'<br>':'')+original.find(p=>p.type==='collect').note;
 if(saved.first?.note)saved.first.note=saved.first.note.replace('1을 꼭 내야 하는 것은 아니에요. 어떤 조합을 낼 수 있는지는 뒤에서 알려드릴게요!', '낼 수 있는 카드는 특수규칙에서 확인할 수 있어요.');
 apply();

@@ -5,7 +5,7 @@ dialog.innerHTML='<div class="sheet-grip" aria-hidden="true"></div><header class
 document.body.append(dialog);
 let previousPlaying=false,previousOverflow='',origin=null;
 const sheetKey='tichu.rule-sheets.v1';let sheetCopy={},sheetView='',sheetEditing=false;
-try{const data=JSON.parse(localStorage.getItem(sheetKey)||'{}');if(data&&typeof data==='object'&&!Array.isArray(data))sheetCopy=data}catch{}
+try{const data=(window.readTichuData(sheetKey)||{});if(data&&typeof data==='object'&&!Array.isArray(data))sheetCopy=data}catch{}
 function prepareSheet(view){
  sheetView=view;
  const content=$('rules-sheet-content');

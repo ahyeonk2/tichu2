@@ -1,0 +1,2 @@
+const scenes=window.TICHU_SCENES,$=id=>document.getElementById(id);let page=0,elapsed=0,playing=true,speed=1,last=0,cycle=0;const media=matchMedia('(prefers-reduced-motion: reduce)');let reduced=media.matches;window.declarationMode='large';window.higherMode='play';
+const saved=window.TICHU_PUBLISHED_EDITS?.['tichu.copy.v1']?.pages||{};for(const s of scenes){const v=saved[s.type];if(v)for(const f of ['body','note','tip'])if(typeof v[f]==='string'){const t=document.createElement('template');t.innerHTML=v[f].replace(/<br>/g,'\n');s[f]=t.content.textContent}}

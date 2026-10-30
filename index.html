@@ -245,6 +245,39 @@ body:has(#start-guide.flow-coach[open]) #start-guide::backdrop{background:linear
 /* Use the entire device width; retain padding inside the content. */
 .guide,#flow-menu{width:100%;max-width:none;margin-inline:0;box-shadow:none}
 @media(min-width:480px){body{background:white}.guide,.guide.intro{min-height:0}}
+</style><style>
+/* Reserve vertical room for the lesson's tips. */
+@media(max-width:1099px){
+ .step-content{margin-top:0}
+ .step-content h1{font-size:clamp(18px,3.4vw,22px);padding-block:8px;line-height:1.35}
+ .animation-wrap{padding-block:6px}
+ .animation-wrap #scene{height:clamp(96px,18dvh,156px);aspect-ratio:auto;max-height:156px}
+ .support{padding-top:4px;padding-bottom:4px}
+ .action{padding:12px}
+ .action-label{margin-bottom:6px}
+ .action-copy,.action-copy p{font-size:14px;line-height:1.5}
+ .support>.action{margin-bottom:10px}
+ .tips{margin-top:8px}
+ .tip{padding:2px 10px}
+ .tip summary{min-height:40px;font-size:13px}
+ .page-references{margin-top:8px;gap:6px}
+ .page-references button{min-height:40px;padding:8px 10px}
+ .combination-reminder{margin-bottom:8px;padding:10px 12px}
+ .animation-wrap #scene:has(.score-visual){height:auto;max-height:none}
+}
+.combination-reminder summary{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;min-height:36px;font-size:13px;color:var(--red)}
+.combination-reminder summary::-webkit-details-marker{display:none}
+.combination-reminder summary strong{flex:1;line-height:1.5}
+.combination-reminder summary .concept-label{margin:0;flex-shrink:0;font-size:11px}
+.combination-reminder[open] summary{margin-bottom:12px}
+.combination-reminder[open] summary>span:last-child{transform:rotate(180deg)}
+.combination-explanation p{font-size:13px}
+@media(max-height:680px) and (max-width:1099px){
+ .animation-wrap #scene{height:96px;max-height:96px}
+ .phase-tabs{margin-block:0}
+ .step-progress{height:12px;padding-block:3px}
+ .topline{min-height:44px;padding-block:0}
+}
 </style></head><body>
 <div id="guide" class="guide"><header id="guide-header"></header><main id="guide-main"></main><footer id="guide-footer"></footer></div>
 <dialog id="flow-menu" aria-labelledby="flow-title"><header><h2 id="flow-title" class="visually-hidden">전체 흐름 보기</h2><button class="close-dialog" aria-label="전체 흐름 닫기">×</button></header><div id="flow-content"></div></dialog>
@@ -546,7 +579,7 @@ function showGuide(id,push=true){
  if(cover){
   $('guide-main').innerHTML=`<section class="cover-content" data-figma-node="219:3591"><h1>티츄는 이런 게임이에요</h1><div class="intro-card-grid">${[['2:2 팀전','2명씩 팀을 이루어 경쟁해요.'],['카드 조합','정해진 족보에 따라 카드를 내요.'],['높은 카드 경쟁','앞서 나온 카드보다 높은 조합을 내요.'],['손패 소진','손에 든 카드를 모두 내려놓아야 해요.'],['점수 경쟁','카드를 모으고 순위 보너스를 얻어 점수를 쌓아요.']].map(([t,b],i)=>`<article class="intro-card"><div class="intro-card-top"><svg viewBox="0 0 28 28" aria-hidden="true">${coreIcons[i]}</svg><span>${String(i+1).padStart(2,'0')}</span></div><h2>${t}</h2><p>${b}</p></article>`).join('')}</div></section>`;
  }else{
-  $('guide-main').innerHTML=`<section class="step-content ${p.id==='end'?'endgame':''}" data-figma-node="${p.node}"><h1>${p.title}</h1><div class="animation-wrap"><div id="scene" role="img" aria-label="${esc(plainText(p.title))}"></div></div><div class="support">${p.combinationReminder?`<section class="combination-reminder" aria-label="카드 조합 개념 설명"><p class="concept-label">규칙 이해하기</p><h2>같은 종류 · 같은 장수로 내요</h2><p>싱글에는 싱글, <strong>페어에는 페어</strong>, 트리플에는 트리플을 내야 해요.</p><p>스트레이트도 앞사람과 <strong>장수가 같아야</strong> 해요. 그 안에서 숫자가 더 높은 조합을 내세요.</p><p class="combination-exception">폭탄은 예외예요. 자세한 규칙은 카드조합·특수카드에서 확인하세요.</p></section>`:''}<section class="action"><div class="action-label">${icon(p,'imgGroup','hand-icon')}<span>지금 할 행동</span></div><div class="action-copy">${p.action}</div></section>${p.prompt?`<p class="support-prompt">${p.prompt}</p>`:''}${pageReferences(p)}<div class="tips">${p.tips.map((label,i)=>`<details class="tip"><summary><span>${label.replace(/^TIP\s*[/／·:]?\s*/,'TIP / ')}</span>${icon(p,'imgAkarIconsChevronDownSmall')}</summary><div class="tip-content">${tipBody(p,i)}</div></details>`).join('')}</div></div></section>`;
+  $('guide-main').innerHTML=`<section class="step-content ${p.id==='end'?'endgame':''}" data-figma-node="${p.node}"><h1>${p.title}</h1><div class="animation-wrap"><div id="scene" role="img" aria-label="${esc(plainText(p.title))}"></div></div><div class="support">${p.combinationReminder?`<details class="combination-reminder" aria-label="카드 조합 개념 설명"><summary><span class="concept-label">규칙 이해하기</span><strong>같은 종류 · 같은 장수로 내요</strong><span aria-hidden="true">⌄</span></summary><div class="combination-explanation"><p>싱글에는 싱글, <strong>페어에는 페어</strong>, 트리플에는 트리플을 내야 해요.</p><p>스트레이트도 앞사람과 <strong>장수가 같아야</strong> 해요. 그 안에서 숫자가 더 높은 조합을 내세요.</p><p class="combination-exception">폭탄은 예외예요. 자세한 규칙은 카드조합·특수카드에서 확인하세요.</p></div></details>`:''}<section class="action"><div class="action-label">${icon(p,'imgGroup','hand-icon')}<span>지금 할 행동</span></div><div class="action-copy">${p.action}</div></section>${p.prompt?`<p class="support-prompt">${p.prompt}</p>`:''}${pageReferences(p)}<div class="tips">${p.tips.map((label,i)=>`<details class="tip"><summary><span>${label.replace(/^TIP\s*[/／·:]?\s*/,'TIP / ')}</span>${icon(p,'imgAkarIconsChevronDownSmall')}</summary><div class="tip-content">${tipBody(p,i)}</div></details>`).join('')}</div></div></section>`;
   const support=$('guide-main').querySelector('.support');
   if(p.combinationReminder) support.querySelector('.action').after(support.querySelector('.combination-reminder'));
   page=p.scene;elapsed=0;cycle=0;playing=true;window.guideMotion=p.id;window.declarationMode='large';render(reduced?4.5:0);
